@@ -87,7 +87,7 @@ Analizamos los resultados y de la lista de relevant_features solo sacamos los qu
 Finalmente hacemos la partición de los datos en el set de entrenamiento y el set de prueba. Se escogió una relación de 0.20 debido a los buenos resultados que dio manualmente:
 
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.20, random_state = 18)
-    
+
 ### K-NN
 
 #### Este modelo fue realizado por Nicolás Orjuela.
@@ -102,7 +102,7 @@ En este caso se normalizaron los datos en vez de estandarizarlos (como se realiz
     normalized_df=(df_diabetes_pru-df_diabetes_pru.min())/(df_diabetes_pru.max()-df_diabetes_pru.min())
     normalized_df
     df_diabetes = normalized_df
- 
+
 ![Tabla Normalizada](./img/tabla_normalizada.jpeg)
 
 Posteriormente, al igual que en RandomForest, se decidió utlizar la técnica SMOTE y balancear los datos para obtener un modelo más eficiente a la hora de predecir personas prediabéticas o diabéticas. Además, se utilizó el método de Pearson para encontrar la correlación entre las columnas y seleccionar las que sean más correlacionadas. Con esta información se eliminaron aquellas columnas que tuvieran un coeficiente de correlación menor a 0.1.
@@ -123,7 +123,6 @@ El número de vecinos está en un rango de 16 a 22, ya que anteriormente en la r
 Despues de entrenar el modelo, se pone a prueba con los datos de prueba y se obtienen las métricas de calidad.
 
 ![Métricas de calidad KNN](./img/metricas_de_calidad_knn.jpeg)
-
 
 ## Implementación de un tercer algoritmo de libre elección, descripción de las decisiones más importantes asociadas a la implementación del algoritmo y los hiperparametros configurados
 
@@ -165,3 +164,17 @@ Después de entrenarlo, se utiliza el dataset de prueba para encontrar las métr
 ![Matriz de confusion](./img/confusion_matrix.png)
 
 ![Métricas de calidad](./img/metricas_de_calidad.png)
+
+## Análisis de los resultados obtenidos y justificación del modelo recomendado para el caso propuesto
+
+Como métrica para analizar el desempeño del modelo se utilizó principalmente la precisión. Esto se debe a que esta métrica considera a todos los falsos positivos y en el contexto médico y del negocio, es preferible (y más económico) tener un falso positivo que puede ser descartado sin mayor consecuencia, a un falso negativo que tenga repercusiones graves.
+
+Considerando lo anterior, el modelo que mejor logra predecir los pacientes con diabetes, prediabetes y sin enfermedades es el RandomForestClassifier. Después de este sigue el DecisionTreeClassifier y después el KNN.
+
+El RandomForestClassifier logra predecir con una precisión cercana o incluso superior al 90% todos los casos posibles. Aún asi se debe considerar el tiempo de computo ya que de los tres modelos utilizados es el que más tiempo toma en entrenarse.
+
+Se le recomienda a SaludAlpes utilizar el modelo de RandomForestClassifier por su elevada precisión. Las demás métricas también fueron muy buenas y congruentes con los resultados obtenidos.
+
+Como valor agregado a la investigación y análisis realizado para SaludAlpes, se evidencia que hay ciertos factores que tienen alta correlación con el diagnostico de diabetes, entre los cuales se resalta la salud general del paciente (GenHealth) y la alta presión sanguínea.
+
+Finalmente como recomendación para SaludAlpes, se menciona que la calidad de los datos aunque era buena no era optima, y esto podría afectar futuros entrenamientos del modelo y diagnósticos.
