@@ -88,7 +88,7 @@ Finalmente hacemos la partición de los datos en el set de entrenamiento y el se
 
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.20, random_state = 18)
     
-### K-NN.
+### K-NN
 
 #### Este modelo fue realizado por Nicolás Orjuela.
 
@@ -118,11 +118,11 @@ Para la partición de los datos en el set de entrenamiento y el set de prueba se
 Para escoger los mejores hiperparametros para el modelo se realizó una búsqueda de valores de grid search con un a validación cruzada de 10 K-Folds, ya que este valor retorna una estimación con un sesgo bajo y una varianza modesta.
 El número de vecinos está en un rango de 16 a 22, ya que anteriormente en la realización de modelos K-NN se decidió que en este rango está el mejor k.
 
-![Entrenamiento KNN](./img/entrenamiento_knn.jpg)
+![Entrenamiento KNN](./img/entrenamiento_knn.jpeg)
 
 Despues de entrenar el modelo, se pone a prueba con los datos de prueba y se obtienen las métricas de calidad.
 
-![Métricas de calidad KNN](./img/metricas_de_calidad_knn.jpg)
+![Métricas de calidad KNN](./img/metricas_de_calidad_knn.jpeg)
 
 
 ## Implementación de un tercer algoritmo de libre elección, descripción de las decisiones más importantes asociadas a la implementación del algoritmo y los hiperparametros configurados
