@@ -1,6 +1,6 @@
 # Laboratorio 1 - Clasificación
 
-### Elaborado por Camilo Salinas, Nicolas Orjuela y Felipe Bedoya.
+### Elaborado por Camilo Salinas, Nicolás Orjuela y Felipe Bedoya.
 
 ## Descripción y análisis de perfilamiento de los datos y de las tareas sugeridas de transformación.
 
@@ -38,7 +38,7 @@ En esta sección se especificará por algoritmo el proceso de preprocesamiento r
 
 #### Este modelo fue realizado por Felipe Bedoya.
 
-El modelo se encuentra en el repositorio como **./Modelos/Modelo_RandomForest_f.bedoy.ipynb**.
+El modelo se encuentra en el repositorio como **./Modelos/Modelo_RandomForest_f.bedoya.ipynb**.
 
 Para este modelo después de realizar el análisis de perfilamiento de los datos, se decidió tratar con los datos NaN desde un principio. Después de ver en PowerBI como se comportaban las excepciones, se decidió importar el CSV como un DataFrame llamado df_diabetes de tipo unicode y que considera los valores NaN a: "-", "Xx" y "?". Teniendo datos NaN es mas fácil eliminarlos que teniendo objects (strings).
 
@@ -87,6 +87,43 @@ Analizamos los resultados y de la lista de relevant_features solo sacamos los qu
 Finalmente hacemos la partición de los datos en el set de entrenamiento y el set de prueba. Se escogió una relación de 0.20 debido a los buenos resultados que dio manualmente:
 
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.20, random_state = 18)
+    
+### K-NN.
+
+#### Este modelo fue realizado por Nicolás Orjuela.
+
+El modelo se encuentra en el repositorio como **./Modelos/Modelo_KNN_n.orjuela.ipynb**.
+
+El preprocesamiento de los datos a utilizar en este modelo fue similar al realizado por Felipe Bedoya. Se trató con los datos NaN desde el principio, se eliminaron las ultimas 5 columnas vacías de la tabla y se eliminaron las pocas tuplas con valores NaN.
+
+En este caso se normalizaron los datos en vez de estandarizarlos (como se realizo en el RandomForest), esto fue debido a que el algoritmo KNN toma los datos numéricos como distancias, por lo que es mejor que todos los datos estuvieran en la misma escala (de 0 a 1) y así evitar que el algoritmo malinterprete estos tipos de datos.
+
+    df_diabetes_pru = df_diabetes.copy()
+    normalized_df=(df_diabetes_pru-df_diabetes_pru.min())/(df_diabetes_pru.max()-df_diabetes_pru.min())
+    normalized_df
+    df_diabetes = normalized_df
+ 
+![Tabla Normalizada](./img/tabla_normalizada.jpeg)
+
+Posteriormente, al igual que en RandomForest, se decidió utlizar la técnica SMOTE y balancear los datos para obtener un modelo más eficiente a la hora de predecir personas prediabéticas o diabéticas. Además, se utilizó el método de Pearson para encontrar la correlación entre las columnas y seleccionar las que sean más correlacionadas. Con esta información se eliminaron aquellas columnas que tuvieran un coeficiente de correlación menor a 0.1.
+
+Para la partición de los datos en el set de entrenamiento y el set de prueba se escogió una relación de 0.15:
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.15, random_state = 98572398)
+
+## Implementación de K-NN, descripción de las decisiones más importantes asociadas a la implementación del algoritmo y los hiperparametros configurados
+
+#### Este modelo fue realizado por Nicolás Orjuela.
+
+Para escoger los mejores hiperparametros para el modelo se realizó una búsqueda de valores de grid search con un a validación cruzada de 10 K-Folds, ya que este valor retorna una estimación con un sesgo bajo y una varianza modesta.
+El número de vecinos está en un rango de 16 a 22, ya que anteriormente en la realización de modelos K-NN se decidió que en este rango está el mejor k.
+
+![Entrenamiento KNN](./img/entrenamiento_knn.jpg)
+
+Despues de entrenar el modelo, se pone a prueba con los datos de prueba y se obtienen las métricas de calidad.
+
+![Métricas de calidad KNN](./img/metricas_de_calidad_knn.jpg)
+
 
 ## Implementación de un tercer algoritmo de libre elección, descripción de las decisiones más importantes asociadas a la implementación del algoritmo y los hiperparametros configurados
 
