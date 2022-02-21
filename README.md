@@ -41,39 +41,39 @@ En esta sección se especificará por algoritmo el proceso de preprocesamiento r
 El modelo se encuentra en el repositorio como **./Modelos/Modelo_RandomForest_f.bedoya.ipynb**.
 
 Para este modelo después de realizar el análisis de perfilamiento de los datos, se decidió tratar con los datos NaN desde un principio. Después de ver en PowerBI como se comportaban las excepciones, se decidió importar el CSV como un DataFrame llamado df_diabetes de tipo unicode y que considera los valores NaN a: "-", "Xx" y "?". Teniendo datos NaN es mas fácil eliminarlos que teniendo objects (strings).
-
+```py
     missing_values = ["-", 'Xx', '?']
     df_diabetes = pd.read_csv('../Resources/202210_Laboratorio1_data_Datos_Clasificacion_2022.csv', sep=';', encoding='utf-8', index_col=0, dtype='unicode', na_values= missing_values)
-
+```
 Para la limpieza de las columnas se eliminan las vaciás que se mencionaron anteriormente:
-
+```py
     df_diabetes = df_diabetes.iloc[:,:-5]
-
+```
 Se eliminan los datos NaN ya que no representan un porcentaje considerable de los datos:
-
+```py
     df_diabetes = df_diabetes.dropna()
-
+```
 Y adicionalmente se convierten los datos a su tipo mas apropiado (En un principio Pandas los convierte a Float64, pero se hizo al cambio a Float16 para optimizar el entrenamiento).
-
+```py
     df_diabetes = df_diabetes.convert_dtypes()
     ...
     # Más adelante despues de haber preprocesado los datos y haberlos partido en sets de entrenamiento y prueba:
     ...
     X = X.astype('float16')
     Y = Y.astype('float16')
-
+```
 Ahora utilizamos el StandardScaler de Scikit Learn para estandarizar los datos. Vale la pena mencionar que en un principio se tenia la intención de utilizar un GaussianProcessClassifier, pero al final decidimos utilizar un RandomForestClassifier ya que es mas eficiente y no requiere mucho tiempo de entrenamiento. El GPC si se veía beneficiado por estandarizar los datos pero en clasificadores de tipo árbol no afecta mucho.
-
+```py
     from sklearn.preprocessing import StandardScaler
     std_scaler = StandardScaler()
     df_std = pd.DataFrame(std_scaler.fit_transform(df_diabetes), columns=df_diabetes.columns)
-
+```
 Como vimos anteriormente, los datos están gravemente desbalanceados. Debemos balancearlos y se decidió utilizar la técnica SMOTE. Considerando el beneficio de crear datos sintéticos no duplicados.
-
+```py
     from imblearn.over_sampling import SMOTE
     oversample = SMOTE()
     df_std, Y = oversample.fit_sample(df_std, Y)
-
+```
 ![Datos balanceados](./img/after_SMOTE.png)
 
 Ahora utilizamos el método de Pearson para encontrar la correlación entre las columnas y seleccionar las que sean más correlacionadas.
@@ -85,8 +85,58 @@ Analizamos los resultados y de la lista de relevant_features solo sacamos los qu
 ![Relevant features](./img/relevant_features.png)
 
 Finalmente hacemos la partición de los datos en el set de entrenamiento y el set de prueba. Se escogió una relación de 0.20 debido a los buenos resultados que dio manualmente:
-
+```py
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.20, random_state = 18)
+```
+### Decision Tree Classification
+
+#### Este modelo fue realizado por Camilo Salinas.
+
+El modelo se encuentra en el repositorio como **./Modelos/Modelo_DecisionTreeClassifier_ca.salinas.ipynb**.
+
+El preprocesamiento de los datos a utilizar en este modelo fue similar al realizado por Felipe Bedoya. Se trató con los datos NaN desde el principio, se eliminaron las ultimas 5 columnas vacías de la tabla y se eliminaron las pocas tuplas con valores NaN.
+```py
+    missing_values = ["-", 'Xx', '?']
+    df_diabetes = pd.read_csv('../Resources/202210_Laboratorio1_data_Datos_Clasificacion_2022.csv', sep=';', encoding='utf-8', index_col=0, dtype='unicode', na_values= missing_values)
+```
+Para la limpieza de las columnas se eliminan las vaciás que se mencionaron anteriormente:
+```py
+    df_diabetes = df_diabetes.iloc[:,:-5]
+```
+Se eliminan los datos NaN ya que no representan un porcentaje considerable de los datos:
+```py
+    df_diabetes = df_diabetes.dropna()
+```
+Y adicionalmente se convierten los datos a su tipo mas apropiado (En un principio Pandas los convierte a Float64, pero se hizo al cambio a Float16 para optimizar el entrenamiento).
+```py
+    df_diabetes = df_diabetes.convert_dtypes()
+    ...
+    # Más adelante despues de haber preprocesado los datos y haberlos partido en sets de entrenamiento y prueba:
+    ...
+    X = X.astype('float16')
+    Y = Y.astype('float16')
+```
+Como vimos anteriormente, los datos están gravemente desbalanceados. Debemos balancearlos y se decidió utilizar la técnica SMOTE. Considerando el beneficio de crear datos sintéticos no duplicados.
+```py
+    from imblearn.over_sampling import SMOTE
+    oversample = SMOTE()
+    df_std, Y = oversample.fit_sample(df_std, Y)
+```
+![Datos balanceados](./img/after_SMOTE.png)
+
+Ahora utilizamos el método de Pearson para encontrar la correlación entre las columnas y seleccionar las que sean más correlacionadas.
+
+![Correlación entre columnas](./img/correlacion_columnas.png)
+
+Analizamos los resultados y de la lista de relevant_features solo sacamos los que tienen un coeficiente de correlación mayor a 0.1. (Sacando un sample de 5 del dataset:)
+
+![Relevant features](./img/relevant_features.png)
+
+Para la particion del set de datos utilizamos la misma partición de 0.20
+```py
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.20, random_state = 18)
+```
+
 
 ### K-NN
 
@@ -97,19 +147,48 @@ El modelo se encuentra en el repositorio como **./Modelos/Modelo_KNN_n.orjuela.i
 El preprocesamiento de los datos a utilizar en este modelo fue similar al realizado por Felipe Bedoya. Se trató con los datos NaN desde el principio, se eliminaron las ultimas 5 columnas vacías de la tabla y se eliminaron las pocas tuplas con valores NaN.
 
 En este caso se normalizaron los datos en vez de estandarizarlos (como se realizo en el RandomForest), esto fue debido a que el algoritmo KNN toma los datos numéricos como distancias, por lo que es mejor que todos los datos estuvieran en la misma escala (de 0 a 1) y así evitar que el algoritmo malinterprete estos tipos de datos.
-
+```py
     df_diabetes_pru = df_diabetes.copy()
     normalized_df=(df_diabetes_pru-df_diabetes_pru.min())/(df_diabetes_pru.max()-df_diabetes_pru.min())
     normalized_df
     df_diabetes = normalized_df
-
+```
 ![Tabla Normalizada](./img/tabla_normalizada.jpeg)
 
 Posteriormente, al igual que en RandomForest, se decidió utlizar la técnica SMOTE y balancear los datos para obtener un modelo más eficiente a la hora de predecir personas prediabéticas o diabéticas. Además, se utilizó el método de Pearson para encontrar la correlación entre las columnas y seleccionar las que sean más correlacionadas. Con esta información se eliminaron aquellas columnas que tuvieran un coeficiente de correlación menor a 0.1.
 
 Para la partición de los datos en el set de entrenamiento y el set de prueba se escogió una relación de 0.15:
-
+```py
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.15, random_state = 98572398)
+
+```
+## Implementación de Decision Tree Classification, descripción de las decisiones más importantes asociadas a la implementación del algoritmo y los hiperparametros configurados
+
+#### Este modelo fue realizado por Camilo Salinas.
+
+Entrenamos el modelo evaluando si el coeficiente de Gini o la Entropía de los datos nos daría mejores resultados
+
+```py
+    arbol = DecisionTreeClassifier(criterion="entropy",random_state=0)
+
+    arbol = arbol.fit(X_train,Y_train)
+    #Posteriormente 
+
+    arbol = DecisionTreeClassifier(criterion="gini",random_state=0)
+
+    arbol = arbol.fit(X_train,Y_train)
+```
+
+Obtuvimos los siguientes resultados
+
+#### Entropia
+![Entrenamiento Decision Tree Entropy](./img/ResultsEntropia.png)
+
+#### Gini
+![Entrenamiento Decision Tree Entropy](./img/ResultsGini.png)
+
+Elegimos Entropia ya que mejora (marginalmente) el f1 score del modelo.
+
 
 ## Implementación de K-NN, descripción de las decisiones más importantes asociadas a la implementación del algoritmo y los hiperparametros configurados
 
@@ -142,8 +221,8 @@ Para escoger el valor mas optimo de estos hiperparametros se utilizó una búsqu
 
 - Se utiliza como hiperparametro fijo n_jobs para que el modelo haga uso de procesos paralelos. En caso de requerirlo puede disminuirlo.
 
-<br>
 
+```py
     param_grid = {
     'criterion': ['gini','entropy'],
     'bootstrap': [True, False],
@@ -152,12 +231,14 @@ Para escoger el valor mas optimo de estos hiperparametros se utilizó una búsqu
     particiones = KFold(n_splits=10, shuffle=True, random_state = 123)
     model = RandomForestClassifier(n_jobs=8, n_estimators=100)
     mejor_modelo = GridSearchCV(model, param_grid, cv=particiones)
-
+```
 Finalmente se entrena el modelo y se obtiene el mejor estimador:
 
+```py
     mejor_modelo.fit(X_train, Y_train)
     mejor_modelo.best_params_
     arbol_final = mejor_modelo.best_estimator_
+````
 
 Después de entrenarlo, se utiliza el dataset de prueba para encontrar las métricas de calidad del modelo y la matriz de confusion.
 
